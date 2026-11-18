@@ -28,6 +28,12 @@ For direct or broadcast messages, open **API ground station** in this app. Its t
 2. Choose a radio or **Broadcast · all radios**. Send `HELLO` with **EOL → None**. Each responding Lab5-07 satellite returns `ACK` with its own address in the log. [See the broadcast diagram](examples/README.md#ground-station-broadcast).
 3. Select **Disconnect** to return the ground station to Transparent mode. If the tab closed early, reconnect in the API ground station and select **Disconnect**. Switching modes uses RAM and keeps the radio's network and paired address.
 
+## Download a picture
+
+1. Upload the [current Lab5-07 sketch](https://github.com/HEPTA-SAT-TRAINING/Lab5-07_Xbee_Api_Mode/tree/feat/zigbee-joint-lab#upload-this-sketch-to-the-satellite). Place a JPEG named `picture_dl.jpg` on the satellite microSD card, up to 1 MiB. A saved picture works without a camera.
+2. In **API ground station**, select the satellite under **Send to** and click **Get picture**.
+3. Click **Save JPEG** when verification finishes.
+
 <details><summary>Development and tests</summary>
 
 Serve the static files with `python -m http.server 8000 --bind 127.0.0.1 --directory docs`, then open `http://localhost:8000/`. GitHub Pages serves the same directory from the main branch.

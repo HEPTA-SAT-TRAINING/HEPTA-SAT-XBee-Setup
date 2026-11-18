@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tools/verify_lab_radio.mjs && node tools/verify_ground_radio.mjs"
+    "test": "node tools/verify_lab_radio.mjs && node tools/verify_ground_radio.mjs && node tools/verify_picture.mjs"
   }
 }

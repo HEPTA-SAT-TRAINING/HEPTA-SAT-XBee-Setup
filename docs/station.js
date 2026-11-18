@@ -1,6 +1,7 @@
 import {SerialConnection} from "./serial.js";
 import {GroundRadio, BROADCAST, addressHex} from "./ground-radio.js";
 import {saveBlobWithPicker} from "./save_file.js";
+import {PictureDownload, isPictureReply} from "./picture.js";
 
 const el = id => document.getElementById(id);
 const to = el("destination");
@@ -11,6 +12,8 @@ const endings = {none:"", lf:"\n", cr:"\r", crlf:"\r\n"};
 const history = [];
 let historyIndex = 0, draft = "";
 let radio, info, activity = "", sending = false, scanning = false, restoreOnly = false;
+let picture, pictureUrl;
+const destination = () => to.value === "manual" ? el("manual-address").value.trim().toUpperCase() : to.value;
 const paired = () => info.DH + info.DL;
 
 function log(message, level = "system") {
@@ -35,6 +38,9 @@ function render() {
   status.className = "status-badge " + (online ? "connected" : "disconnected");
   to.disabled = input.disabled = !idleSession;
   el("btn-send").disabled = !idleSession || sending;
+  const address = destination();
+  el("get-picture").disabled = !idleSession || Boolean(picture) || address === BROADCAST ||
+    !/^[0-9A-F]{16}$/.test(address) || /^0{16}$/.test(address);
   el("manual-address").hidden = to.value !== "manual";
   el("btn-send").textContent = to.value === BROADCAST ? "Broadcast" : "Send";
 }
@@ -45,6 +51,10 @@ function addRadio(address) {
 }
 
 function receive(source, bytes, broadcast) {
+  if (isPictureReply(bytes)) {
+    if (!broadcast) picture?.receive(source, bytes);
+    return;
+  }
   const hex = el("display-mode").value === "hex";
   const message = hex ? Array.from(bytes, byte => addressHex([byte])).join(" ")
     : new TextDecoder().decode(bytes).replace(/[\r\n]+$/, "");
@@ -62,6 +72,8 @@ async function discover() {
 }
 
 function reset() {
+  picture?.cancel();
+  picture = null;
   radio?.cancelPending();
   radio = info = null;
   sending = scanning = restoreOnly = false;
@@ -99,6 +111,7 @@ async function disconnect() {
   if (activity) return false;
   if (!info) return true;
   activity = "Restoring monitor mode…";
+  picture?.cancel();
   render();
   try {
     await radio.restore();
@@ -121,7 +134,7 @@ link.onDisconnect = () => {
 async function send() {
   if (!info || activity || sending || restoreOnly) return;
   const text = input.value;
-  const address = to.value === "manual" ? el("manual-address").value.trim().toUpperCase() : to.value;
+  const address = destination();
   const session = radio;
   const payload = new TextEncoder().encode(text + endings[el("line-ending").value]);
   if (to.value === "manual" && (address === BROADCAST || /^0{16}$/.test(address))) {
@@ -160,6 +173,38 @@ el("btn-disconnect").onclick = disconnect;
 el("btn-send").onclick = send;
 el("discover").onclick = discover;
 to.onchange = render;
+el("manual-address").oninput = render;
+el("get-picture").onclick = async () => {
+  if (el("get-picture").disabled) return;
+  const source = destination();
+  const transfer = picture = new PictureDownload(radio, source);
+  const progress = el("picture-progress");
+  const save = el("save-picture");
+  if (pictureUrl) URL.revokeObjectURL(pictureUrl);
+  pictureUrl = null;
+  save.hidden = true;
+  progress.removeAttribute("value");
+  progress.hidden = false;
+  render();
+  try {
+    const bytes = await transfer.download((received, total) => {
+      progress.max = total;
+      progress.value = received;
+    });
+    if (picture !== transfer || transfer.cancelled) return;
+    pictureUrl = URL.createObjectURL(new Blob([bytes], {type: "image/jpeg"}));
+    save.href = pictureUrl;
+    save.download = "picture-" + source + ".jpg";
+    save.hidden = false;
+    log("← " + source + "   Picture verified · " + bytes.length + " bytes · " + transfer.retries + " retries", "rx");
+  } catch (e) {
+    if (picture === transfer && !transfer.cancelled) log(e.message, "error");
+  } finally {
+    if (picture === transfer) picture = null;
+    if (!picture) progress.hidden = true;
+    render();
+  }
+};
 el("btn-clear").onclick = () => output.replaceChildren();
 el("btn-save-log").onclick = async () => {
   try { await saveBlobWithPicker(new Blob([output.innerText + "\n"], {type:"text/plain"}), "hepta-ground-station.txt"); }
