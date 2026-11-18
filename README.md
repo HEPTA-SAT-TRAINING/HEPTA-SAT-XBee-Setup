@@ -2,13 +2,9 @@
 
 ## Before you connect
 
-| Device | What to do before using the web app |
-| --- | --- |
-| Ground station | Plug the USB XBee into your PC. No firmware upload is needed. |
-| Satellite with the joint-network Lab5-07 sketch or another sketch with its USB setup service | Power the satellite and connect its onboard computer (OBC) by USB. It is ready to use. |
-| Satellite running a legacy sketch without the USB setup service | First [build and upload the joint-network sketch](examples/README.md#build-the-joint-network-sample) to the **satellite OBC** using Arduino IDE. This replaces the sketch currently on the OBC. |
+**Satellite:** Upload [this Lab5-07 sketch](https://github.com/HEPTA-SAT-TRAINING/Lab5-07_Xbee_Api_Mode/tree/feat/zigbee-joint-lab#upload-this-sketch-to-the-satellite) to the satellite OBC using Arduino IDE. Use the same sketch for Full and Lite. If setup already shows the satellite's radio address, skip the upload.
 
-The web app changes network settings. Joining or restoring a network does not require another upload. The supported S2C Zigbee XBee modules on both ends keep their existing radio firmware.
+**Ground station:** Plug the USB XBee into your PC. No upload is needed. The XBee radio firmware stays as supplied.
 
 ## Join or restore a network
 
@@ -22,10 +18,14 @@ The ground station uses Transparent mode at 38400 baud. The host must permit joi
 
 ## Send and receive
 
-After setup, disconnect the ground station's port here and open it in the [Web Serial Monitor](https://hepta-sat-training.github.io/HEPTA-SAT-Serial_Monitor/) at **38400 baud**, **Text** view. See the [communication examples](examples/README.md) for commands, Arduino code and expected output for each route.
+After setup, disconnect the ground station's port here and open it in the [Web Serial Monitor](https://hepta-sat-training.github.io/HEPTA-SAT-Serial_Monitor/) at **38400 baud**, **Text** view. See the [communication examples](examples/README.md) for commands, Arduino code and expected output.
 
-## Local use and tests
+**One recipient per message.** A typed command goes to the paired satellite. `TO <address>` tells that satellite to send `HELLO` to one more radio on the same network. Sending one command to every satellite at once (broadcast) is not supported by this sketch.
+
+<details><summary>Development and tests</summary>
 
 Serve the static files with `python -m http.server 8000 --bind 127.0.0.1 --directory docs`, then open `http://localhost:8000/`. GitHub Pages serves the same directory from the main branch.
 
 Run `npm test` for the radio protocol checks. With Python Playwright and Chromium installed, run `python tools/verify_lab_ui.py` for the simulated-device browser test.
+
+</details>
