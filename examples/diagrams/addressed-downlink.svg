@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="740" height="196" viewBox="0 0 740 196" role="img" aria-labelledby="title desc">
+  <title id="title">Addressed downlink</title>
+  <desc id="desc">Ground station 1 sends the TO command to satellite 1. Satellite 1 sends HELLO directly to ground station 2.</desc>
+  <defs>
+    <g id="ground" fill="#e2f4ed" stroke="#17654f" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-6 8 L-10 19 H9 L3 9 M-14 20 H14"/>
+      <path d="M-17 -11 Q-20 12 3 12 Q10 12 14 8 Z"/>
+      <path d="M-3 -2 L9 -15 M4 -16 L10 -17 L11 -11" fill="none"/>
+    </g>
+    <g id="satellite" transform="rotate(-25)" fill="#e4edfc" stroke="#37598e" stroke-width="2" stroke-linejoin="round">
+      <path d="M-18 0 H18 M0 -7 V-15" fill="none"/>
+      <rect x="-23" y="-7" width="13" height="14" rx="1"/>
+      <rect x="10" y="-7" width="13" height="14" rx="1"/>
+      <path d="M-17 -7 V7 M17 -7 V7 M-23 0 H-10 M10 0 H23" stroke-width="1.3"/>
+      <rect x="-6.5" y="-8" width="13" height="16" rx="2" fill="#9fbce3"/>
+      <circle cy="-16" r="2" fill="#37598e"/>
+    </g>
+    <marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0 L11 6 L0 12 L3 6 Z" fill="#205c79"/>
+    </marker>
+  </defs>
+  <rect width="740" height="196" rx="10" fill="#f8fafc"/>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle" fill="#21364a">
+    <use xlink:href="#ground" x="80" y="33"/>
+    <text x="80" y="77" font-size="17" font-weight="bold">Ground station 1</text>
+    <path d="M80 85 V184" stroke="#acbdc9" stroke-dasharray="3 4"/>
+    <use xlink:href="#satellite" x="370" y="33"/>
+    <text x="370" y="77" font-size="17" font-weight="bold">Satellite 1</text>
+    <path d="M370 85 V184" stroke="#acbdc9" stroke-dasharray="3 4"/>
+    <use xlink:href="#ground" x="660" y="33"/>
+    <text x="660" y="77" font-size="17" font-weight="bold">Ground station 2</text>
+    <path d="M660 85 V184" stroke="#acbdc9" stroke-dasharray="3 4"/>
+    <text x="225" y="118" font-family="Consolas, monospace" font-size="15">TO 0013A200000000B2</text>
+    <path d="M83 127 H367" stroke="#205c79" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <text x="515" y="166" font-family="Consolas, monospace" font-size="15">HELLO</text>
+    <path d="M373 175 H657" stroke="#205c79" stroke-width="2.5" marker-end="url(#arrow)"/>
+  </g>
+</svg>

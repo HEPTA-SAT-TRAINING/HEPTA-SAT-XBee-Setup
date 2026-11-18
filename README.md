@@ -20,7 +20,7 @@ The ground station uses Transparent mode at 38400 baud. The host must permit joi
 
 After setup, disconnect the ground station's port here and open it in the [Web Serial Monitor](https://hepta-sat-training.github.io/HEPTA-SAT-Serial_Monitor/) at **38400 baud**, **Text** view. See the [communication examples](examples/README.md) for commands, Arduino code and expected output.
 
-**One recipient per message.** A typed command goes to the paired satellite. `TO <address>` tells that satellite to send `HELLO` to one more radio on the same network. Sending one command to every satellite at once (broadcast) is not supported by this sketch.
+**One recipient per message.** A typed command goes to the paired satellite. `TO <address>` tells that satellite to send `HELLO` to one more radio on the same network. [Ground station broadcast to all satellites](examples/README.md#ground-station-broadcast) is unsupported in this setup.
 
 <details><summary>Development and tests</summary>
 
