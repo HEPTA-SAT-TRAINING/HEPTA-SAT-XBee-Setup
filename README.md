@@ -34,6 +34,8 @@ For direct or broadcast messages, open **API ground station** in this app. Its t
 2. In **API ground station**, select the satellite under **Send to** and click **Get picture**.
 3. Click **Save JPEG** when verification finishes.
 
+If **Get picture** already works with your satellite, reload the ground station page to use the faster download. The same sketch supports three outstanding 64-byte reads and individual block retries.
+
 <details><summary>Development and tests</summary>
 
 Serve the static files with `python -m http.server 8000 --bind 127.0.0.1 --directory docs`, then open `http://localhost:8000/`. GitHub Pages serves the same directory from the main branch.

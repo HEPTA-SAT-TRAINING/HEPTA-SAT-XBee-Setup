@@ -1,5 +1,7 @@
 const headerSize = 12;
 const blockSize = 64;
+// The satellite has four receive slots. Leave room for a concurrent command.
+const windowSize = 3;
 const magic = [0x89, 0x48, 0x49];
 const view = bytes => new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
@@ -34,21 +36,29 @@ export class PictureDownload {
     this.source = source;
     this.id = crypto.getRandomValues(new Uint32Array(1))[0];
     this.retries = 0;
+    this.pending = new Map();
   }
 
   receive(source, bytes) {
-    if (source !== this.source || !this.pending || !isPictureReply(bytes)) return;
+    if (source !== this.source || !isPictureReply(bytes)) return;
     const data = view(bytes);
-    if (data.getUint32(4, true) !== this.id || data.getUint32(8, true) !== this.offset) return;
+    if (data.getUint32(4, true) !== this.id) return;
+    const request = this.pending.get(data.getUint32(8, true));
+    if (!request) return;
     if (data.getUint16(bytes.length - 2, true) !== crc16(bytes.subarray(0, -2))) return;
     if (bytes[3] === 0x45 ? bytes.length === headerSize + 3 :
-        bytes[3] === this.type && bytes.length === headerSize + this.length + 2)
-      this.pending(bytes);
+        bytes[3] === request.type && bytes.length === headerSize + request.length + 2)
+      request.finish(bytes);
   }
 
   cancel() {
     this.cancelled = true;
-    this.pending?.(null);
+    this.stopPending();
+  }
+
+  stopPending() {
+    this.stopped = true;
+    for (const request of this.pending.values()) request.finish(null);
   }
 
   async request(command, offset, length) {
@@ -57,14 +67,12 @@ export class PictureDownload {
     req[3] = command.charCodeAt(0);
     view(req).setUint32(4, this.id, true);
     view(req).setUint32(8, offset, true);
-    this.type = command === "?" ? 0x49 : 0x44;
-    this.offset = offset;
-    this.length = length;
-    for (let attempt = 0; attempt < 4 && !this.cancelled; attempt++) {
+    const type = command === "?" ? 0x49 : 0x44;
+    for (let attempt = 0; attempt < 4 && !this.stopped; attempt++) {
       if (attempt) this.retries++;
       let finish;
       const reply = new Promise(resolve => { finish = resolve; });
-      this.pending = finish; // A response can precede the local TX status.
+      this.pending.set(offset, {type, length, finish}); // A response can precede TX status.
       try {
         await this.radio.send(this.source, req);
       } catch {
@@ -73,8 +81,8 @@ export class PictureDownload {
       const timer = setTimeout(() => finish(null), command === "?" ? 5000 : 1200);
       const bytes = await reply;
       clearTimeout(timer);
-      this.pending = null;
-      if (!bytes || this.cancelled) continue;
+      this.pending.delete(offset);
+      if (!bytes || this.stopped) continue;
       if (bytes[3] === 0x45) {
         const reason = ["", "No picture_dl.jpg on the satellite SD card.",
           "Picture exceeds 1 MiB.", "Satellite could not read the picture."];
@@ -93,10 +101,23 @@ export class PictureDownload {
     if (!size || size > 1024 * 1024) throw Error("Invalid picture size.");
     const file = new Uint8Array(size);
     progress(0, size);
-    for (let offset = 0; offset < size; offset += blockSize) {
-      const bytes = await this.request("R", offset, Math.min(blockSize, size - offset));
-      file.set(bytes, offset);
-      progress(offset + bytes.length, size);
+    let nextOffset = 0, received = 0;
+    const readBlocks = async () => {
+      while (!this.stopped && nextOffset < size) {
+        const offset = nextOffset;
+        nextOffset += blockSize;
+        const bytes = await this.request("R", offset, Math.min(blockSize, size - offset));
+        if (this.stopped) return;
+        file.set(bytes, offset);
+        received += bytes.length;
+        progress(received, size);
+      }
+    };
+    try {
+      await Promise.all(Array.from({length: windowSize}, readBlocks));
+      if (this.cancelled) throw Error("Download cancelled.");
+    } finally {
+      this.stopPending();
     }
     if (crc32(file) !== info.getUint32(4, true)) throw Error("Picture checksum mismatch.");
     return file;
