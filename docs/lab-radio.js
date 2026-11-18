@@ -52,25 +52,26 @@ export class LabRadio {
     }
     throw Error("No reply. Check the USB port and device type. Satellites need power and Lab5-07.");
   }
-  async session(fn) {
+  async session(fn, entryReply = /(?:^|[\r\n])OK\r/) {
     if (this.satellite) return fn();
     // Guard times apply to host transmissions; do not send CR after +++.
     await sleep(1150);
-    await this.request("+++", /(?:^|[\r\n])OK\r/, 2400);
+    await this.request("+++", entryReply, 2400);
     try { return await fn(); }
     finally { await this.request("ATCN\r", /(?:^|[\r\n])OK\r/); }
   }
+  async readRegisters(names) {
+    const info = {};
+    for (const key of names) {
+      const value = this.satellite
+        ? await this.request("HEPTA1 GET "+key+"\n", /(?:^|[\r\n])HEPTA1 OK ([a-f0-9]+)\r?\n/i)
+        : await this.request("AT"+key+"\r", /(?:^|[\r\n])([a-f0-9]+)\r/i);
+      info[key] = hex(value,key === "NT" ? 2 : widths[key]);
+    }
+    return info;
+  }
   async read(names) {
-    return this.session(async () => {
-      const info = {};
-      for (const key of names) {
-        const value = this.satellite
-          ? await this.request("HEPTA1 GET "+key+"\n", /(?:^|[\r\n])HEPTA1 OK ([a-f0-9]+)\r?\n/i)
-          : await this.request("AT"+key+"\r", /(?:^|[\r\n])([a-f0-9]+)\r/i);
-        info[key] = hex(value,widths[key]);
-      }
-      return info;
-    });
+    return this.session(() => this.readRegisters(names));
   }
   async identify() {
     const info = await this.read(Object.keys(widths));

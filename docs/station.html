@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API ground station | HEPTA-SAT</title>
+  <link rel="stylesheet" href="monitor.css">
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar">
+      <div class="toolbar-row">
+        <div class="connection-group">
+          <strong>API ground station</strong>
+          <a id="setup-link" href="./">Network setup</a>
+          <span class="toolbar-label">Port:</span>
+          <span id="port-display" class="port-display" title="Currently selected COM port">— no port selected —</span>
+          <button id="btn-select-port" type="button" class="btn-primary" title="Pick a COM port and connect (disconnect first to switch ports)">Select &amp; Connect Port</button>
+          <button id="btn-disconnect" type="button" class="btn-step" disabled title="Close the port so other apps can use it">Disconnect</button>
+        </div>
+        <span class="toolbar-label">38400 baud</span>
+        <label for="display-mode">View:</label>
+        <select id="display-mode" title="Output display mode">
+          <option value="text">Text</option>
+          <option value="hex">Hex</option>
+        </select>
+        <label class="checkbox-label" title="Scroll output as new data arrives">
+          <input id="auto-scroll" type="checkbox" checked>
+          Auto scroll
+        </label>
+        <button id="btn-save-log" type="button" class="btn-secondary">Save Log</button>
+        <button id="btn-clear" type="button" class="btn-secondary">Clear</button>
+        <span role="status" id="connection-status" class="status-badge disconnected">Disconnected</span>
+      </div>
+      <div class="toolbar-row destinations">
+        <label for="destination">Send to</label>
+        <select id="destination" disabled>
+          <option value="">Paired radio</option>
+        </select>
+        <input id="manual-address" aria-label="Radio address" placeholder="16-digit radio address" maxlength="16" spellcheck="false" hidden>
+        <button id="discover" class="btn-secondary" type="button" disabled>Find radios</button>
+      </div>
+    </header>
+
+    <main class="output-wrap">
+      <pre id="output" class="output" aria-live="polite"></pre>
+    </main>
+
+    <footer class="input-bar">
+      <span class="input-prompt">&gt;</span>
+      <input
+        id="send-input" aria-label="Message"
+        type="text"
+        placeholder="Message + Enter (↑↓ history)"
+        disabled
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button id="btn-send" type="button" disabled>Send</button>
+      <label for="line-ending" class="input-bar-label">EOL:</label>
+      <select id="line-ending" title="Line ending appended on send">
+        <option value="none" selected>None</option>
+        <option value="lf">LF</option>
+        <option value="cr">CR</option>
+        <option value="crlf">CRLF</option>
+      </select>
+    </footer>
+  </div>
+
+  <script type="module" src="station.js"></script>
+</body>
+</html>

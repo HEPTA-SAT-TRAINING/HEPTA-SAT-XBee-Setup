@@ -156,7 +156,7 @@ export class SerialConnection {
   }
 
   /**
-   * @param {string} text
+   * @param {string|Uint8Array} text
    */
   async write(text) {
     const task = this._writeQueue.then(() => this._writeNow(text));
@@ -165,7 +165,7 @@ export class SerialConnection {
   }
 
   /**
-   * @param {string} text
+   * @param {string|Uint8Array} text
    */
   async _writeNow(text) {
     if (!this.port?.writable) {
@@ -173,7 +173,7 @@ export class SerialConnection {
     }
     const writer = this.port.writable.getWriter();
     try {
-      const data = new TextEncoder().encode(text);
+      const data = typeof text === "string" ? new TextEncoder().encode(text) : text;
       await writer.write(data);
     } finally {
       try {

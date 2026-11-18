@@ -1,10 +1,11 @@
 # Communication examples
 
-**Upload [this Lab5-07 sketch](https://github.com/HEPTA-SAT-TRAINING/Lab5-07_Xbee_Api_Mode/tree/feat/zigbee-joint-lab#upload-this-sketch-to-the-satellite) to each participating satellite once.** All four examples use it. If it is already running, start with the monitor.
+**Upload [this Lab5-07 sketch](https://github.com/HEPTA-SAT-TRAINING/Lab5-07_Xbee_Api_Mode/tree/feat/zigbee-joint-lab#upload-this-sketch-to-the-satellite) to each participating satellite.** The USB ground station needs no firmware upload.
 
-Typing in a ground station monitor sends to its paired satellite. Use `TO` to tell that satellite where to send its next `HELLO`.
+Use the **ground station's USB XBee port**. Disconnect it in Network setup before opening either tool.
 
-Use the **ground station's USB XBee port** in the [Web Serial Monitor](https://hepta-sat-training.github.io/HEPTA-SAT-Serial_Monitor/) or Arduino Serial Monitor. Disconnect that port in the setup app first. Set **38400 baud** and select **Text** in the web monitor. Use **LF** (Newline) for the commands below. The monitor displays text payloads as sent. A trailing newline keeps successive messages on separate lines.
+- [Web Serial Monitor](https://hepta-sat-training.github.io/HEPTA-SAT-Serial_Monitor/) or Arduino Serial Monitor — use **38400 baud**, **Text**, and **LF** for the first four examples. Typed commands go to the paired satellite.
+- [API ground station](https://hepta-sat-training.github.io/HEPTA-SAT-XBee-Setup/station.html) — choose a destination for each message. Use **EOL → None** for the direct uplink and broadcast examples.
 
 | From | To | Example |
 | --- | --- | --- |
@@ -12,7 +13,8 @@ Use the **ground station's USB XBee port** in the [Web Serial Monitor](https://h
 | Ground station 1 | Paired satellite 1 | [Send a one-character command](#paired-uplink) |
 | Ground station 1, via satellite 1 | Satellite 2 | [Request a satellite-to-satellite exchange](#satellite-to-satellite) |
 | Satellite 1 | Ground station 2 | [Send text to a specific ground station](#addressed-downlink) |
-| Ground station 1 | All satellites on the same network | [Broadcast (unsupported in this setup)](#ground-station-broadcast) |
+| Ground station 1 | Satellite 2 directly | [Select a radio in the API ground station](#direct-uplink) |
+| Ground station 1 | All radios on the same network | [Send a broadcast](#ground-station-broadcast) |
 
 For either `TO` example, join the participating radios to the **same network** first. In setup, connect the destination device and copy its **Radio address** under **Radio details**. Replace the example address with those 16 hex digits.
 
@@ -72,11 +74,17 @@ if (ground_used == 0 && c == '!') {
 
 Monitor 2 displays `Hello from satellite 1`. The next normal `com.printf(...)` still goes to ground station 1. A nonzero return from `send_to` is a frame ID; use `com.tx_result()` for the radio delivery status. An application reply is a separate message.
 
+## Direct uplink
+
+![Ground station 1 sends g directly to satellite 2, which replies to ground station 1.](diagrams/direct-uplink.svg)
+
+Open the [API ground station](https://hepta-sat-training.github.io/HEPTA-SAT-XBee-Setup/station.html) and connect the USB ground station. Under **Send to**, choose satellite 2's address. Send `g` with **EOL → None**. The current Lab5-07 returns `command = g` to the sending station. Older joint-network sketches accept `HELLO` and return `ACK` but only echo commands from their paired station.
+
 ## Ground station broadcast
 
-![Unsupported in this setup. One message from ground station 1 branches to satellite 1 and satellite 2 on the same network.](diagrams/ground-station-broadcast.svg)
+![One HELLO from ground station 1 reaches both satellites on the same network.](diagrams/ground-station-broadcast.svg)
 
-The dashed arrows show one transmission to every satellite on the same network. With the supplied settings, the ground station sends only to its paired satellite. Joining more satellites does not enable broadcast.
+In the [API ground station](https://hepta-sat-training.github.io/HEPTA-SAT-XBee-Setup/station.html), choose **Broadcast · all radios**, enter `HELLO`, set **EOL → None**, and click **Broadcast**. Other ground stations on the same network can receive it too. **Broadcast sent** confirms transmission. Look for an `ACK` from each satellite's address to see which ones replied.
 
 ## Build the joint-network sample
 

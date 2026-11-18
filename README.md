@@ -1,8 +1,10 @@
-# HEPTA-SAT XBee Setup
+# HEPTA-SAT XBee setup and ground station
+
+[Open Network setup](https://hepta-sat-training.github.io/HEPTA-SAT-XBee-Setup/) · [Open API ground station](https://hepta-sat-training.github.io/HEPTA-SAT-XBee-Setup/station.html)
 
 ## Before you connect
 
-**Satellite:** Upload [this Lab5-07 sketch](https://github.com/HEPTA-SAT-TRAINING/Lab5-07_Xbee_Api_Mode/tree/feat/zigbee-joint-lab#upload-this-sketch-to-the-satellite) to the satellite OBC using Arduino IDE. Use the same sketch for Full and Lite. If setup already shows the satellite's radio address, skip the upload.
+**Satellite:** Upload [this Lab5-07 sketch](https://github.com/HEPTA-SAT-TRAINING/Lab5-07_Xbee_Api_Mode/tree/feat/zigbee-joint-lab#upload-this-sketch-to-the-satellite) to the satellite OBC using Arduino IDE. Full and Lite use the same sketch. Earlier joint-network versions already support setup and `HELLO`. Use the current version for single-character commands from another ground station.
 
 **Ground station:** Plug the USB XBee into your PC. No upload is needed. The XBee radio firmware stays as supplied.
 
@@ -20,7 +22,11 @@ The ground station uses Transparent mode at 38400 baud. The host must permit joi
 
 After setup, disconnect the ground station's port here and open it in the [Web Serial Monitor](https://hepta-sat-training.github.io/HEPTA-SAT-Serial_Monitor/) at **38400 baud**, **Text** view. See the [communication examples](examples/README.md) for commands, Arduino code and expected output.
 
-**One recipient per message.** A typed command goes to the paired satellite. `TO <address>` tells that satellite to send `HELLO` to one more radio on the same network. [Ground station broadcast to all satellites](examples/README.md#ground-station-broadcast) is unsupported in this setup.
+For direct or broadcast messages, open **API ground station** in this app. Its toolbar, console and send bar are based on the [HEPTA-SAT Serial Monitor](https://github.com/HEPTA-SAT-TRAINING/HEPTA-SAT-Serial_Monitor).
+
+1. Select **Select & Connect Port** and choose the ground station USB port. **Send to** starts on the paired radio. Other radios on the same network appear as they are found.
+2. Choose a radio or **Broadcast · all radios**. Send `HELLO` with **EOL → None**. Each responding Lab5-07 satellite returns `ACK` with its own address in the log. [See the broadcast diagram](examples/README.md#ground-station-broadcast).
+3. Select **Disconnect** to return the ground station to Transparent mode. If the tab closed early, reconnect in the API ground station and select **Disconnect**. Switching modes uses RAM and keeps the radio's network and paired address.
 
 <details><summary>Development and tests</summary>
 
