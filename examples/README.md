@@ -76,4 +76,8 @@ git -C examples/JointNetwork/src checkout --detach 1bbc835ad9cdaa5f796ea23d56e0e
 git -C examples/JointNetwork/src apply ../../joint-network-library.patch
 ```
 
-Open `examples/JointNetwork/JointNetwork.ino` in Arduino IDE with the kit's Pico 2 board selected. Full is the default. For Lite, add `#define HEPTA_BOARD_LITE` at the very top of the sketch, or supply `-DHEPTA_BOARD_LITE` when compiling. The patch supplies the joint-network API on the pinned public library. To use a legacy Transparent sketch again, power-cycle the XBee so it reloads its saved UART mode.
+1. Open `examples/JointNetwork/JointNetwork.ino` in Arduino IDE. Full is the default. For Lite, add `#define HEPTA_BOARD_LITE` at the very top of the sketch, or compile with `-DHEPTA_BOARD_LITE`.
+2. Power the satellite and connect its OBC to the PC by USB. In Arduino IDE select the kit's **Pico 2** board and the **satellite OBC's port**.
+3. Click **Upload** and wait for completion. Close the IDE's Serial Monitor if open. In the web app, select **Satellite → Connect device via USB** and choose the same port. The radio address and current network appear once the app reads the device.
+
+This upload replaces the OBC sketch. To use a legacy Transparent sketch again, upload that sketch and power-cycle the XBee so it reloads its saved UART mode.
