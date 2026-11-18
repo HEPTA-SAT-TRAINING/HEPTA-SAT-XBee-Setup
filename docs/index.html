@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>XBee network setup | HEPTA-SAT</title>
+  <link rel="stylesheet" href="lab.css">
+</head>
+<body><main>
+  <header><span class="brand">HEPTA-SAT</span><h1>XBee network setup</h1></header>
+  <div class="route">
+    <section aria-labelledby="host-title">
+      <h2 id="host-title"><span class="step">1</span>Host network</h2>
+      <button id="host" class="host-button"><span class="device-picture" aria-hidden="true"><i class="station"></i></span><span class="host-label">Read host ground station via USB</span></button>
+      <dl class="network" id="source" hidden>
+        <div><dt>Network ID</dt><dd id="source-pan"></dd></div>
+        <div><dt>Channel</dt><dd id="source-channel"></dd></div>
+      </dl>
+      <details id="manual"><summary>Enter settings manually</summary>
+        <div class="fields">
+          <label>Network ID <input id="pan" title="64-bit Zigbee network ID (extended PAN ID)" spellcheck="false" autocomplete="off" placeholder="e.g. 0x20"></label>
+          <label>Channel <input id="channel" spellcheck="false" autocomplete="off" placeholder="11–26"></label>
+        </div>
+      </details>
+    </section>
+    <span class="direction" aria-hidden="true">→</span>
+    <section aria-labelledby="target-title">
+      <h2 id="target-title"><span class="step">2</span>Device to join</h2>
+      <fieldset id="kind"><legend class="sr-only">Device type</legend>
+        <label><input type="radio" name="kind" value="sat" checked><i class="satellite" aria-hidden="true"></i>Satellite</label>
+        <label><input type="radio" name="kind" value="ground"><i class="station" aria-hidden="true"></i>Ground station</label>
+      </fieldset>
+      <div class="buttons"><button id="connect" class="primary">Connect device via USB</button>
+        <button id="disconnect" hidden>Disconnect</button></div>
+      <div id="connected" hidden>
+        <div class="device-id" id="device-id"></div>
+        <div id="current"></div>
+        <details><summary>Radio details</summary><pre id="identity"></pre></details>
+      </div>
+    </section>
+  </div>
+  <fieldset id="actions" class="actions" disabled hidden><legend class="sr-only">Network actions</legend>
+    <div class="review"><button id="preview" class="primary">Review network change</button>
+      <span id="plan"></span><button id="apply" class="primary" hidden>Join network</button></div>
+    <button id="restore" hidden>↶ Restore original network</button>
+    <details id="test"><summary>Test radio link</summary>
+      <label>Peer radio address <input id="peer" maxlength="16" spellcheck="false"></label>
+      <button id="ping">Test connection</button>
+    </details>
+  </fieldset>
+  <p id="status" role="status" aria-live="polite"></p>
+</main><script type="module" src="lab.js"></script></body></html>

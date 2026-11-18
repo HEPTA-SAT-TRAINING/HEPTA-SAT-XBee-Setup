@@ -1,0 +1,8 @@
+{
+  "name": "hepta-sat-xbee-setup",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tools/verify_lab_radio.mjs"
+  }
+}
