@@ -8,6 +8,10 @@
 
 The app supports S2C Zigbee radios. The ground station uses Transparent mode at 38400 baud. Satellites need a powered OBC running the USB configuration service from the joint-network edition of Lab5-07. The host must permit joining. Settings are read over local USB. Original settings are kept in this browser by radio address. A different site origin, including localhost, has its own restore records.
 
+## Send and receive
+
+After setup, disconnect the ground station's port here and open it in the [Web Serial Monitor](https://hepta-sat-training.github.io/HEPTA-SAT-Serial_Monitor/) at **38400 baud**, **Text** view. See the [communication examples](examples/README.md) for commands, Arduino code and expected output for each route.
+
 ## Local use and tests
 
 Serve the static files with `python -m http.server 8000 --bind 127.0.0.1 --directory docs`, then open `http://localhost:8000/`. GitHub Pages serves the same directory from the main branch.
